@@ -27,7 +27,7 @@ export function Register() {
     .object({
       nickname: yup.string().required("O nome é obrigatório").min(4, "O nome tem que ter no minimo 4 caracteres"),
       email: yup.string().email("O email é invalido").required("O email é obrigatório"),
-      password: yup.string().required("A senha é obrigatória").min(4, "A senha tem que ter no minimo 4 caracteres").max(50),
+      password: yup.string().required("A senha é obrigatória").min(4, "A senha tem que ter no minimo 4 caracteres ").max(50),
       confPassword: yup
         .string()
         .when("password", (password, field) =>
