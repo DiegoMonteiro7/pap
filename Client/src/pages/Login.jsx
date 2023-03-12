@@ -1,105 +1,122 @@
-import React from "react";
-import Grid from "@mui/material/Unstable_Grid2";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
+import TextField from "@mui/material/TextField";
+import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-
 import GoogleIcon from "@mui/icons-material/Google";
 import FacebookIcon from "@mui/icons-material/Facebook";
 
+import axios from "axios";
+
 function Login() {
+  const [inputs, setInputs] = useState({
+    nickname: "",
+    password: "",
+  });
+
+  const [err, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post("/auth/login", inputs);
+      navigate("/");
+    } catch (err) {
+      setError(err.response.data);
+    }
+  };
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        flexWrap: "wrap",
-        "& > :not(style)": {
-          lg: {
-            width: "40%",
-            height: "50%",
-          },
-          md: {
-            width: "60%",
-            height: "50%",
-          },
-          xs: {
-            width: "80%",
-            height: "50%",
-          },
-        },
-      }}
-    >
-      <Paper
-        elevation={10}
+    <>
+      <Box
         sx={{
-          backgroundColor: "black",
-          color: "white",
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+          flexDirection: "column",
         }}
       >
-        <Grid
-          sx={12}
-          textAlign="center"
-          margin="2%"
-          borderBottom="1px solid white"
+        <Container
+          maxWidth="xl"
+          sx={{
+            width: { xl: "30%", md: "60%", xs: "100%" },
+            height: "auto",
+          }}
         >
-          <Typography
-            variant="h6"
+          <Paper
+            elevation={20}
+            component="form"
             sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              fontSize: {
-                lg: "3rem",
-                md: "2.5rem",
-                sm: "2.5rem",
-                xs: "2.5rem",
+              "& > :not(style)": {
+                m: 2,
+                width: { xl: "80%", md: "80%", xs: "100%" },
               },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "5%",
             }}
           >
-            Login
-          </Typography>
-        </Grid>
-        <Grid sx={12} textAlign="center" margin="2%">
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: "monospace",
-              fontWeight: 700,
-              fontSize: {
-                lg: "2rem",
-                md: "2rem",
-                sm: "2rem",
-                xs: "2rem",
-              },
-            }}
-          >
-            Entrar com
-            <Box
+            <Typography
+              variant="h6"
               sx={{
-                marginTop: "2%",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
+                fontFamily: "monospace",
+                fontWeight: 700,
+                color: "inherit",
+                textAlign: "center",
+                fontSize: {
+                  lg: "4rem",
+                  md: "3rem",
+                  sm: "2rem",
+                  xs: "3rem",
+                },
               }}
             >
-              <GoogleIcon fontSize="50px" />
-              &nbsp; &nbsp;
-              <FacebookIcon fontSize="50px" />
-            </Box>
-          </Typography>
-        </Grid>
-        <Grid sx={12} textAlign="center" margin="2%">
-          <form>
-            <input type="text" placeholder="nome"/>
-            <input type="text" placeholder="email"/>
-            <input type="text" placeholder="senha"/>
-            <input type="submit" value="enviar" />
-          </form>
-        </Grid>
-      </Paper>
-    </Box>
+              Entrar
+            </Typography>
+            <form>
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <TextField
+                  id="filled-basic"
+                  label="Nome da conta*:"
+                  variant="filled"
+                  type="text"
+                  name="nickname"
+                  placeholder="Genz1231..."
+                  onChange={handleChange}
+                />
+                <br />
+                <TextField
+                  id="filled-basic"
+                  label="Senha*:"
+                  variant="filled"
+                  type="password"
+                  name="password"
+                  placeholder="senha123"
+                  onChange={handleChange}
+                />
+                <br />
+                <Button variant="contained" onClick={handleSubmit}>
+                  Logar
+                </Button>
+                <br />
+                {err && <p>{err}</p>}
+              </Box>
+            </form>
+          </Paper>
+        </Container>
+      </Box>
+    </>
   );
 }
 

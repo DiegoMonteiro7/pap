@@ -5,74 +5,37 @@ import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import "./css/style.css"
 
-import Axios from "axios";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom"
+
+import "./css/style.css";
+
+import axios from "axios";
 
 export function Register() {
-  
-  const initState = {
+  const [inputs, setInputs] = useState({
     nickname: "",
     email: "",
     password: "",
-    confPassword: "",
-  };
-
-  const [initalValues, setInitialValues] = useState(initState);
-
-  const validationShema = yup
-    .object({
-      nickname: yup.string().required("O nome é obrigatório").min(4, "O nome tem que ter no minimo 4 caracteres"),
-      email: yup.string().email("O email é invalido").required("O email é obrigatório"),
-      password: yup.string().required("A senha é obrigatória").min(4, "A senha tem que ter no minimo 4 caracteres ").max(50),
-      confPassword: yup
-        .string()
-        .when("password", (password, field) =>
-          password ? field.required("Confirma a senha").oneOf([yup.ref("password")], "A senha está diferente   ") : field
-        ),
-    })
-    .required();
-
-  const onSubmit = (values) => {
-    console.log("Values::::", values);
-  };
-
-  const onError = (error) => {
-    console.log("ERROR::::", values)
-  };
-
-  const {
-    register,
-    handleSubmit,
-    watch,  
-    formState: { errors },
-  } = useForm({
-    mode: "onTouched",
-    reValidateMode: "onChange",
-    defaultValues: initalValues,
-    resolver: yupResolver(validationShema),
   });
 
-  const [values, setValues] = useState();
+  const [err, setError] = useState(null);
 
-  const handleChangeValues = (values) => {
-    setValues((prevValue) => ({
-      ...prevValue,
-      [values.target.name]: values.target.value,
-    }));
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleClickButton = () => {
-    Axios.post("http://localhost:3001/registerUser", {
-      nickname: values.nickname,
-      email: values.email,
-      password: values.password,
-    }).then((response) => {
-      console.log(response);
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post("/auth/register", inputs);
+      navigate("/login")
+    } catch (err) {
+      setError(err.response.data);
+    }
   };
 
   return (
@@ -88,7 +51,7 @@ export function Register() {
         <Container
           maxWidth="xl"
           sx={{
-            width: { xl: "50%", md: "60%", xs: "100%" },
+            width: { xl: "30%", md: "60%", xs: "100%" },
             height: "auto",
           }}
         >
@@ -98,7 +61,7 @@ export function Register() {
             sx={{
               "& > :not(style)": {
                 m: 2,
-                width: { xl: "70%", md: "80%", xs: "100%" },
+                width: { xl: "90%", md: "80%", xs: "100%" },
               },
               display: "flex",
               flexDirection: "column",
@@ -123,54 +86,51 @@ export function Register() {
             >
               Conta
             </Typography>
-            <form onSubmit={handleSubmit(onSubmit, onError)}>
+            <form>
               <Box sx={{ display: "flex", flexDirection: "column" }}>
                 <TextField
                   id="filled-basic"
                   label="Usuário*:"
                   variant="filled"
                   type="text"
-                  {...register("nickname")}
+                  name="nickname"
                   placeholder="Genz123..."
-                  onChange={handleChangeValues}
+                  onChange={handleChange}
                 />
-                {errors.nickname && <p>{errors.nickname.message}</p>}
                 <br />
                 <TextField
                   id="filled-basic"
                   label="Email*:"
                   variant="filled"
                   type="Email"
-                  {...register("email")}
+                  name="email"
                   placeholder="email@email.com"
-                  onChange={handleChangeValues}
+                  onChange={handleChange}
                 />
-                {errors.email && <p>{errors.email.message}</p>}
                 <br />
                 <TextField
                   id="filled-basic"
                   label="Senha*:"
                   variant="filled"
                   type="password"
-                  {...register("password")}
+                  name="password"
                   placeholder="senha123"
-                  onChange={handleChangeValues}
+                  onChange={handleChange}
                 />
-                {errors.password && <p>{errors.password.message}</p>}
                 <br />
                 <TextField
                   id="filled-basic"
                   label="Confirmar senha*:"
                   variant="filled"
                   type="password"
-                  {...register("confPassword")}
                   placeholder="senha123"
                 />
-                {errors.confPassword && <p>{errors.confPassword.message}</p>}
                 <br />
-                <Button variant="contained" type="submit" onClick={handleClickButton}>
+                <Button variant="contained" onClick={handleSubmit}>
                   Enviar
                 </Button>
+                <br />
+                {err && <p>{err}</p>}
               </Box>
             </form>
           </Paper>
